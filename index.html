@@ -86,7 +86,7 @@
     padding:10px 12px;
   }
   .ct-summary-card .label{font-size:11px;color:var(--ink-soft);}
-  .ct-summary-card .value{font-size:16px;font-weight:700;color:var(--green);margin-top:2px;}
+  .ct-summary-card .value{font-size:16px;font-weight:700;color:var(--green);margin-top:2px;font-variant-numeric:tabular-nums;}
   .ct-summary-card.gold .value{color:#9C7526;}
 
   .ct-search{
@@ -95,7 +95,7 @@
     border-radius:10px;
     border:1px solid var(--line);
     background:var(--card);
-    font-size:14px;
+    font-size:16px;
     margin-bottom:12px;
     font-family:inherit;
     color:var(--ink);
@@ -133,6 +133,8 @@
     border-radius:var(--radius);
     padding:12px 14px;
     margin-bottom:10px;
+    content-visibility:auto;
+    contain-intrinsic-size:0 70px;
   }
   .ct-member-top{
     display:flex;
@@ -143,7 +145,7 @@
   .ct-member-name{font-size:15px;font-weight:600;}
   .ct-member-acc{font-size:11px;color:var(--ink-soft);margin-top:2px;}
   .ct-member-total{text-align:right;}
-  .ct-member-total .amt{font-size:15px;font-weight:700;color:var(--green);}
+  .ct-member-total .amt{font-size:15px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums;}
   .ct-member-total .lbl{font-size:10px;color:var(--ink-soft);}
 
   .ct-member-grid{
@@ -156,7 +158,7 @@
     font-size:12px;
   }
   .ct-member-grid .g-lbl{color:var(--ink-soft);}
-  .ct-member-grid .g-val{font-weight:600;text-align:right;}
+  .ct-member-grid .g-val{font-weight:600;text-align:right;font-variant-numeric:tabular-nums;}
   .ct-member-grid .g-val.loan{color:var(--red);}
 
   .ct-member-actions{
@@ -187,14 +189,16 @@
     background:var(--card);
     width:100%;max-width:520px;
     border-radius:18px 18px 0 0;
-    padding:20px 18px 26px;
+    padding:20px 18px calc(26px + env(safe-area-inset-bottom, 0px));
+    max-height:85vh;
+    overflow-y:auto;
   }
   .ct-modal h2{font-size:16px;margin:0 0 14px;color:var(--green);}
   .ct-field{margin-bottom:12px;}
   .ct-field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:4px;}
   .ct-field input{
     width:100%;padding:10px 12px;border-radius:8px;
-    border:1px solid var(--line);font-size:14px;font-family:inherit;
+    border:1px solid var(--line);font-size:16px;font-family:inherit;
     color:var(--ink);
   }
   .ct-field input:focus{outline:2px solid var(--green);outline-offset:1px;}
@@ -252,10 +256,11 @@
     position:sticky;
     top:0;
   }
-  table.ct-table td.num{ text-align:right; }
+  table.ct-table td.num{ text-align:right; font-variant-numeric:tabular-nums; }
   table.ct-table td.sn{ color:var(--ink-soft); }
   table.ct-table td.loan{ color:var(--red); }
   table.ct-table td.total{ font-weight:700; color:var(--green); }
+  table.ct-table tr{ content-visibility:auto; contain-intrinsic-size:0 36px; }
   table.ct-table tr:last-child td{ border-bottom:none; }
 
   .acc-gs{ color:var(--green); font-weight:700; }
@@ -266,6 +271,20 @@
     background:var(--ink);color:#fff;padding:10px 18px;border-radius:30px;
     font-size:13px;z-index:60;
   }
+
+  .ct-loadmore{
+    width:100%;
+    padding:12px;
+    border:1px dashed var(--line);
+    border-radius:10px;
+    background:var(--card);
+    color:var(--green);
+    font-size:13px;
+    font-weight:600;
+    font-family:inherit;
+    cursor:pointer;
+    margin-top:4px;
+  }
 </style>
 </head>
 <body>
@@ -273,6 +292,7 @@
   <div class="ct-header">
     <h1>दैनिक असुली — सदस्य खाता</h1>
     <div class="ct-header-right">
+      <button class="ct-refresh-corner" id="ct-voice-toggle" style="border-color:var(--green);background:var(--green-soft);color:var(--green);">🔊 आवाज</button>
       <button class="ct-refresh-corner" id="ct-reset-btn">रिफ्रेस</button>
     </div>
   </div>
@@ -322,8 +342,10 @@
 
   const STORE_KEY = 'members-v1';
   const MAX_MEMBERS = 1500;
+  const PAGE_SIZE = 60; // how many rows/cards to render at once (perf on mobile)
   let members = [];
   let expandedId = null;
+  let visibleCount = PAGE_SIZE;
 
   // सदस्य सूची - थ्री स्टार बहुउदेश्यीय सहकारी संस्था फारमबाट
   const DEFAULT_MEMBERS = [
@@ -496,6 +518,72 @@
     ['प्रदीप','GS-00099']
   ];
 
+  // ---- voice confirmation (speaks the collection out loud after "पुष्टि गर्नुहोस्") ----
+  const VOICE_KEY = 'voice-enabled-v1';
+  let voiceEnabled = localStorage.getItem(VOICE_KEY) !== 'off';
+  const voiceToggleBtn = document.getElementById('ct-voice-toggle');
+  function updateVoiceBtn(){
+    voiceToggleBtn.textContent = voiceEnabled ? '🔊 आवाज' : '🔇 आवाज बन्द';
+    voiceToggleBtn.style.background = voiceEnabled ? 'var(--green-soft)' : 'var(--red-soft)';
+    voiceToggleBtn.style.color = voiceEnabled ? 'var(--green)' : 'var(--red)';
+    voiceToggleBtn.style.borderColor = voiceEnabled ? 'var(--green)' : 'var(--red)';
+  }
+  updateVoiceBtn();
+  voiceToggleBtn.addEventListener('click', ()=>{
+    voiceEnabled = !voiceEnabled;
+    localStorage.setItem(VOICE_KEY, voiceEnabled ? 'on' : 'off');
+    updateVoiceBtn();
+    if(voiceEnabled) speak('आवाज सुरु भयो');
+  });
+
+  // Warm up the voice list — on many mobile browsers speechSynthesis.getVoices()
+  // returns empty until this event fires once.
+  let nepaliVoice = null;
+  function pickVoice(){
+    const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+    nepaliVoice = voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('ne'))
+      || voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('hi'))
+      || null;
+  }
+  if(window.speechSynthesis){
+    pickVoice();
+    speechSynthesis.addEventListener('voiceschanged', pickVoice);
+  }
+
+  function speak(text){
+    if(!voiceEnabled || !window.speechSynthesis) return;
+    try{
+      speechSynthesis.cancel(); // don't let announcements queue up and overlap
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'ne-NP';
+      utter.rate = 0.95;
+      if(nepaliVoice) utter.voice = nepaliVoice;
+      speechSynthesis.speak(utter);
+    }catch(e){ /* speech not supported on this device — silently skip */ }
+  }
+
+  const DEVANAGARI_DIGITS = {'0':'०','1':'१','2':'२','3':'३','4':'४','5':'५','6':'६','7':'७','8':'८','9':'९'};
+  function toNepaliDigits(n){
+    return String(Math.round(n)).replace(/[0-9]/g, d=>DEVANAGARI_DIGITS[d]);
+  }
+
+  function accountPrefix(acc){
+    const s = (acc||'').trim().toUpperCase();
+    if(s.startsWith('GS')) return 'GS';
+    if(s.startsWith('PS')) return 'PS';
+    if(s.startsWith('CS')) return 'CS';
+    return '';
+  }
+
+  function announceCollection(m, kind, todayTotal){
+    // kind is 'बचत' or 'ऋण'
+    const prefix = accountPrefix(m.account);
+    const acctPart = prefix ? (prefix + ' खातामा') : 'खातामा';
+    const sentence = m.name + 'को आजको ' + kind + ': रु. ' + toNepaliDigits(todayTotal) + ' ' + acctPart + '।';
+    speak(sentence);
+    toast(sentence);
+  }
+
   const todayStr = () => {
     const d = new Date();
     const pad = n => String(n).padStart(2,'0');
@@ -651,7 +739,8 @@
   }
 
   function renderTableFiltered(list){
-    let rows = list.map((m,i)=>{
+    const shown = list.slice(0, visibleCount);
+    let rows = shown.map((m,i)=>{
       const savToday = collectedToday(m);
       const loanToday = loanGivenToday(m);
       return `
@@ -683,6 +772,7 @@
           <tbody>${rows}</tbody>
         </table>
       </div>
+      ${list.length > visibleCount ? '<button class="ct-loadmore" id="ct-loadmore-table">थप देखाउनुहोस् ('+(list.length - visibleCount)+' बाँकी)</button>' : ''}
     `;
   }
 
@@ -697,7 +787,15 @@
   viewCardsBtn.addEventListener('click', ()=>setView('cards'));
   viewTableBtn.addEventListener('click', ()=>setView('table'));
 
+  // Rebuilding 1000+ DOM nodes on every keystroke/tap was the source of the
+  // lag and of the page visibly "jumping" (the browser resets scroll
+  // position when a large block of content above the fold is replaced).
+  // render() now: (1) only rebuilds the view that's actually visible,
+  // (2) only renders a page's worth of rows at a time, and
+  // (3) restores the scroll position it had right before the rebuild.
   function render(){
+    const scrollY = window.scrollY;
+
     const q = searchEl.value.trim().toLowerCase();
     const filtered = members.filter(m =>
       m.name.toLowerCase().includes(q) || (m.account||'').toLowerCase().includes(q)
@@ -709,14 +807,26 @@
     todayLoanEl.textContent = fmt(todayLoanSum);
     todayGrandTotalEl.textContent = fmt(todaySavingsSum + todayLoanSum);
 
-    renderTableFiltered(filtered);
+    if(viewMode === 'table'){
+      renderTableFiltered(filtered);
+    } else {
+      renderCardsFiltered(filtered);
+    }
 
+    // Restore exactly where the user was instead of letting the browser
+    // snap back to the top of the page.
+    window.scrollTo(0, scrollY);
+  }
+
+  function renderCardsFiltered(filtered){
     if(filtered.length===0){
       listEl.innerHTML = '<div class="ct-empty">'+(members.length===0 ? 'अहिलेसम्म कुनै सदस्य थपिएको छैन। माथिको बटनबाट सदस्य थप्नुहोस्।' : 'खोजी अनुसार कुनै सदस्य फेला परेन।')+'</div>';
       return;
     }
 
-    listEl.innerHTML = filtered.map(m=>{
+    const shown = filtered.slice(0, visibleCount);
+
+    listEl.innerHTML = shown.map(m=>{
       const isOpen = expandedId===m.id;
       return `
         <div class="ct-member" data-id="${m.id}">
@@ -746,7 +856,7 @@
           ` : ''}
         </div>
       `;
-    }).join('');
+    }).join('') + (filtered.length > visibleCount ? '<button class="ct-loadmore" id="ct-loadmore-cards">थप देखाउनुहोस् ('+(filtered.length - visibleCount)+' बाँकी)</button>' : '');
   }
 
   function accountHtml(acc){
@@ -843,9 +953,22 @@
       toast('सबै बचत र ऋण मेटियो');
     }
   });
-  searchEl.addEventListener('input', render);
+
+  // Debounce search so filtering 1500 members doesn't run on every single
+  // keystroke on a mobile keyboard (this was a big source of the lag).
+  let searchTimer = null;
+  searchEl.addEventListener('input', ()=>{
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(()=>{
+      visibleCount = PAGE_SIZE; // fresh search starts from the top of the results
+      render();
+    }, 180);
+  });
 
   listEl.addEventListener('click', e=>{
+    const loadMore = e.target.closest('#ct-loadmore-cards');
+    if(loadMore){ visibleCount += PAGE_SIZE; render(); return; }
+
     const toggle = e.target.closest('[data-toggle]');
     if(toggle){ expandedId = expandedId===toggle.dataset.toggle ? null : toggle.dataset.toggle; render(); return; }
 
@@ -857,7 +980,7 @@
         m.history = m.history||[];
         m.history.push({date:todayStr(), amount:amt});
         persist();
-        toast(m.name+'बाट '+fmt(amt)+' असुल भयो');
+        announceCollection(m, 'बचत', collectedToday(m));
       });
       return;
     }
@@ -870,7 +993,7 @@
         m.loanHistory = m.loanHistory||[];
         m.loanHistory.push({date:todayStr(), amount:amt});
         persist();
-        toast(m.name+'बाट '+fmt(amt)+' ऋण असुल भयो');
+        announceCollection(m, 'ऋण', loanGivenToday(m));
       });
       return;
     }
@@ -893,8 +1016,14 @@
     }
   });
 
+  tableContainerEl.addEventListener('click', e=>{
+    const loadMore = e.target.closest('#ct-loadmore-table');
+    if(loadMore){ visibleCount += PAGE_SIZE; render(); return; }
+  });
+
   loadLocal();
 })();
 </script>
 </body>
 </html>
+
