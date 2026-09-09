@@ -991,6 +991,7 @@
             return;
           }
           members.push({id:uid(), name, account, savings, loan, history:[], loanHistory:[]});
+          speak(name); // announce the new member's name once they're added
         }
         persist();
         backdrop.remove();
