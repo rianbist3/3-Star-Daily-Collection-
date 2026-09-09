@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>दैनिक संकलना - 3 Star </title>
+<title>Daily Collection - 3 Star </title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -352,10 +352,10 @@
 <body>
 <div id="ct-root">
   <div class="ct-header">
-    <h1>दैनिक संकलन — 3 Star </h1>
+    <h1>Daily Collection — 3 Star </h1>
     <div class="ct-header-right">
       <button class="ct-refresh-corner" id="ct-voice-toggle" style="border-color:var(--green);background:var(--green-soft);color:var(--green);">🔊 आवाज</button>
-      <button class="ct-refresh-corner" id="ct-reset-btn">रिफ्रेस</button>
+      <button class="ct-refresh-corner" id="ct-reset-btn">Refresh</button>
     </div>
   </div>
 
@@ -369,7 +369,7 @@
       <div class="value" id="ct-today-loan">रु ०</div>
     </div>
     <div class="ct-summary-card gold">
-      <div class="label">आजको Total संकलन रकम</div>
+      <div class="label"> Total संकलन रकम</div>
       <div class="value" id="ct-today-grand-total">रु ०</div>
     </div>
   </div>
@@ -381,7 +381,7 @@
   <button class="ct-add-btn" id="ct-add-member-btn">+ नयाँ सदस्य थप्नुहोस्</button>
 
   <div class="ct-view-toggle">
-    <button id="ct-view-cards" class="active">कार्ड सूची</button>
+    <button id="ct-view-cards" class="active">Card</button>
     <button id="ct-view-table">Table</button>
   </div>
 
@@ -463,7 +463,7 @@
     ['लक्ष्मण थापा','GS-00185'],
     ['कौशिला रम्तेल','GS-00186'],
     ['पवित्रा रानाभाट','GS-00187'],
-    ['परिश्रमा राना मगर','CS-00008'],
+    ['परिश्रमा राना मगर','GS-00008'],
     ['तेज कुमारी लोहनी','GS-00188'],
     ['बल कृष्ण खनाल','GS-00201'],
     ['राधिका श्रेष्ठ','GS-00029'],['राधिका श्रेष्ठ','PS-00035'],
@@ -586,7 +586,7 @@
   let voiceEnabled = localStorage.getItem(VOICE_KEY) !== 'off';
   const voiceToggleBtn = document.getElementById('ct-voice-toggle');
   function updateVoiceBtn(){
-    voiceToggleBtn.textContent = voiceEnabled ? '🔊 आवाज' : '🔇 आवाज बन्द';
+    voiceToggleBtn.textContent = voiceEnabled ? '🔊 Voice' : '🔇 Voice Off';
     voiceToggleBtn.style.background = voiceEnabled ? 'var(--green-soft)' : 'var(--red-soft)';
     voiceToggleBtn.style.color = voiceEnabled ? 'var(--green)' : 'var(--red)';
     voiceToggleBtn.style.borderColor = voiceEnabled ? 'var(--green)' : 'var(--red)';
@@ -596,7 +596,7 @@
     voiceEnabled = !voiceEnabled;
     localStorage.setItem(VOICE_KEY, voiceEnabled ? 'on' : 'off');
     updateVoiceBtn();
-    if(voiceEnabled) speak('आवाज सुरु भयो');
+    if(voiceEnabled) speak('3 Star सहकारीमा स्वागत छ।');
   });
 
   // Warm up the voice list — on many mobile browsers speechSynthesis.getVoices()
@@ -735,7 +735,7 @@
   }
 
   function downloadTodayCSV(){
-    const rows = [['क.सं.','सदस्यको नाम','खाता नं.','बचत रकम (आज)','ऋण (आज)','जम्मा रकम (आज)']];
+    const rows = [['क.सं.','सदस्यको नाम','खाता नं.','बचत रकम ','ऋण ','जम्मा रकम ']];
     let totalSav = 0, totalLoan = 0;
     members.forEach((m,i)=>{
       const sav = collectedToday(m);
@@ -764,7 +764,7 @@
       if(navigator.msSaveOrOpenBlob){
         const blob = new Blob([csvWithBom], {type:'text/csv;charset=utf-8;'});
         navigator.msSaveOrOpenBlob(blob, filename);
-        toast('डाटा डाउनलोड भयो');
+        toast('Downloaded successfully ✅');
         return;
       }
 
@@ -782,7 +782,7 @@
       // download before the blob URL is freed (fixes empty/failed downloads
       // on some mobile browsers).
       setTimeout(()=>URL.revokeObjectURL(url), 4000);
-      toast('डाटा डाउनलोड भयो');
+      toast('डDownloaded successfully ✅');
     }catch(err){
       // Fallback for browsers/in-app webviews that block the blob+download
       // trick entirely (e.g. some mobile in-app browsers): open the CSV as
@@ -791,12 +791,12 @@
         const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvWithBom);
         const win = window.open(dataUri, '_blank');
         if(!win){
-          toast('डाउनलोड ब्लक भयो — पप-अप अनुमति दिनुहोस्');
+          toast('Download Block भयो — पप-अप अनुमति दिनुहोस्');
         }else{
           toast('नयाँ ट्याबमा खुल्यो, त्यहाँबाट सेभ गर्नुहोस्');
         }
       }catch(err2){
-        toast('डाउनलोड असफल भयो, फेरि प्रयास गर्नुहोस्');
+        toast('Download असफल भयो, फेरि प्रयास गर्नुहोस्');
       }
     }
   }
@@ -829,7 +829,7 @@
           <thead>
             <tr>
               <th>क.सं.</th><th>सदस्यको नाम</th><th>खाता नं.</th>
-              <th>बचत रकम (आज)</th><th>ऋण (आज)</th><th>जम्मा रकम</th>
+              <th>बचत रकम</th><th>ऋण</th><th>जम्मा रकम</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -960,12 +960,12 @@
     return `
       ${savRows.length ? `
       <div class="ct-entry-section">
-        <div class="ct-entry-title">आजका बचत</div>
+        <div class="ct-entry-title">आजको बचत</div>
         ${savRows.map(h=>rowHtml(h,'savings','savings')).join('')}
       </div>` : ''}
       ${loanRows.length ? `
       <div class="ct-entry-section">
-        <div class="ct-entry-title">आजका ऋण</div>
+        <div class="ct-entry-title">आजको ऋण</div>
         ${loanRows.map(h=>rowHtml(h,'loan','loanamt')).join('')}
       </div>` : ''}
     `;
@@ -1039,7 +1039,7 @@
   function memberFormModal(existing){
     const isEdit = !!existing;
     openModal(`
-      <h2>${isEdit ? 'सदस्य सम्पादन' : 'नयाँ सदस्य'}</h2>
+      <h2>${isEdit ? 'Member Details' : 'नयाँ सदस्य'}</h2>
       <div class="ct-field"><label>सदस्यको नाम</label><input id="f-name" value="${isEdit?escapeHtml(existing.name):''}" /></div>
       <div class="ct-field"><label>खाता नं.</label><input id="f-acc" value="${isEdit?escapeHtml(existing.account||''):''}" /></div>
       <div class="ct-field"><label> बचत रकम</label><input id="f-sav" type="number" inputmode="decimal" value="${isEdit?existing.savings:0}" /></div>
@@ -1081,7 +1081,7 @@
       <h2>${title}</h2>
       <div class="ct-field"><label>रकम</label><input id="a-amt" type="number" inputmode="decimal" value="${prefill}" autofocus /></div>
       <div class="ct-modal-actions">
-        <button class="cancel" id="a-cancel">रद्द</button>
+        <button class="cancel" id="a-cancel">Back</button>
         <button class="save" id="a-save">${saveLabel}</button>
       </div>
     `, (backdrop, removeBackdrop)=>{
@@ -1147,7 +1147,7 @@
     const loan = e.target.closest('[data-loan]');
     if(loan){
       const m = members.find(x=>x.id===loan.dataset.loan);
-      amountModal('आज कति ऋण असुल गर्नुभयो?', amt=>{
+      amountModal('उहाँले आज कति ऋण तिर्नुभयो?', amt=>{
         m.loan = Number(m.loan||0) + amt;
         m.loanHistory = m.loanHistory||[];
         m.loanHistory.push({date:todayStr(), amount:amt});
