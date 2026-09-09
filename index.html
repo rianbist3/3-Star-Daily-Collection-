@@ -17,9 +17,11 @@
     --gold-soft:#F6EAD2;
     --red:#A6432D;
     --red-soft:#F5E4DE;
-    --line:#A79F87;
+    --line:#3E6B54;        /* bold outer boundary — clear card/section edge */
+    --line-strong:#D79A2C; /* bright gold internal divider — separates content within a card */
     --card:#FFFFFF;
     --radius:14px;
+    --shadow:0 1px 2px rgba(31,42,36,0.05), 0 6px 14px -6px rgba(31,42,36,0.12);
   }
 
   *{box-sizing:border-box;}
@@ -84,6 +86,7 @@
     border:2px solid var(--line);
     border-radius:var(--radius);
     padding:10px 12px;
+    box-shadow:var(--shadow);
   }
   .ct-summary-card .label{font-size:11px;color:var(--ink-soft);}
   .ct-summary-card .value{font-size:16px;font-weight:700;color:var(--green);margin-top:2px;font-variant-numeric:tabular-nums;}
@@ -124,7 +127,7 @@
     font-size:14px;
     background:var(--card);
     border-radius:var(--radius);
-    border:2px dashed var(--line);
+    border:2px solid var(--line-strong);
   }
 
   .ct-member{
@@ -133,8 +136,18 @@
     border-radius:var(--radius);
     padding:12px 14px;
     margin-bottom:10px;
+    box-shadow:var(--shadow);
     content-visibility:auto;
     contain-intrinsic-size:0 70px;
+  }
+  /* The open card's real height is much taller than the 70px guess used
+     for collapsed cards above. Without this, the browser keeps
+     re-guessing its size as you scroll and the whole list jitters/jumps
+     under your finger. Turning content-visibility off for just this one
+     card makes it render at its true height immediately. */
+  .ct-member.is-open{
+    content-visibility:visible;
+    contain-intrinsic-size:auto;
   }
   .ct-member-top{
     display:flex;
@@ -154,7 +167,7 @@
     gap:6px 12px;
     margin-top:10px;
     padding-top:10px;
-    border-top:2px solid var(--line);
+    border-top:2.5px solid var(--line-strong);
     font-size:12px;
   }
   .ct-member-grid .g-lbl{color:var(--ink-soft);}
@@ -179,17 +192,17 @@
   .ct-btn.collect{background:var(--green);color:#fff;}
   .ct-btn.loan{background:var(--red-soft);color:var(--red);}
   .ct-btn.edit{background:var(--green-soft);color:var(--green);}
-  .ct-btn.del{background:transparent;color:var(--ink-soft);border:2px solid var(--line);flex:0 0 auto;padding:9px 12px;}
+  .ct-btn.del{background:transparent;color:var(--ink-soft);border:2px solid var(--line-strong);flex:0 0 auto;padding:9px 12px;}
 
-  .ct-entry-section{margin-top:10px;padding-top:8px;border-top:2px dashed var(--line);}
+  .ct-entry-section{margin-top:10px;padding-top:8px;border-top:2.5px solid var(--line-strong);}
   .ct-entry-section .ct-entry-title{font-size:11px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;}
   .ct-entry-row{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:5px 0;
+    padding:6px 0;
     font-size:12px;
-    border-bottom:2px dashed var(--line);
+    border-bottom:1.5px solid var(--line);
   }
   .ct-entry-row:last-child{border-bottom:none;}
   .ct-entry-amt{font-weight:700;font-variant-numeric:tabular-nums;}
@@ -225,13 +238,13 @@
   .ct-field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:4px;}
   .ct-field input{
     width:100%;padding:10px 12px;border-radius:8px;
-    border:2px solid var(--line);font-size:16px;font-family:inherit;
+    border:2px solid var(--line-strong);font-size:16px;font-family:inherit;
     color:var(--ink);
   }
   .ct-field input:focus{outline:2px solid var(--green);outline-offset:1px;}
   .ct-modal-actions{display:flex;gap:10px;margin-top:16px;}
   .ct-modal-actions button{flex:1;padding:11px;border-radius:8px;border:none;font-weight:600;font-family:inherit;font-size:14px;cursor:pointer;}
-  .ct-modal-actions .cancel{background:var(--bg);color:var(--ink-soft);border:2px solid var(--line);}
+  .ct-modal-actions .cancel{background:var(--bg);color:var(--ink-soft);border:2px solid var(--line-strong);}
   .ct-modal-actions .save{background:var(--green);color:#fff;}
 
   .ct-view-toggle{
@@ -243,7 +256,7 @@
     flex:1;
     padding:9px;
     border-radius:8px;
-    border:2px solid var(--line);
+    border:2px solid var(--line-strong);
     background:var(--card);
     color:var(--ink-soft);
     font-size:12px;
@@ -262,6 +275,7 @@
     background:var(--card);
     border:2px solid var(--line);
     border-radius:var(--radius);
+    box-shadow:var(--shadow);
     -webkit-overflow-scrolling:touch;
   }
   table.ct-table{
@@ -271,8 +285,8 @@
     font-size:12px;
   }
   table.ct-table th, table.ct-table td{
-    padding:8px 10px;
-    border-bottom:2px solid var(--line);
+    padding:9px 10px;
+    border-bottom:2px solid var(--line-strong);
     text-align:left;
     white-space:nowrap;
   }
@@ -284,6 +298,7 @@
     top:0;
     border-bottom:2px solid var(--green);
   }
+  table.ct-table tbody tr:nth-child(even) td{ background:var(--bg); }
   table.ct-table td.num{ text-align:right; font-variant-numeric:tabular-nums; }
   table.ct-table td.sn{ color:var(--ink-soft); }
   table.ct-table td.loan{ color:var(--red); }
@@ -303,7 +318,7 @@
   .ct-loadmore{
     width:100%;
     padding:12px;
-    border:2px dashed var(--line);
+    border:2px solid var(--line-strong);
     border-radius:10px;
     background:var(--card);
     color:var(--green);
@@ -857,7 +872,7 @@
     listEl.innerHTML = shown.map(m=>{
       const isOpen = expandedId===m.id;
       return `
-        <div class="ct-member" data-id="${m.id}">
+        <div class="ct-member${isOpen ? ' is-open' : ''}" data-id="${m.id}">
           <div class="ct-member-top" data-toggle="${m.id}">
             <div>
               <div class="ct-member-name">${escapeHtml(m.name)}</div>
