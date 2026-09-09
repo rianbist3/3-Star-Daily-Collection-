@@ -172,7 +172,7 @@
     align-items:flex-start;
     cursor:pointer;
   }
-  .ct-member-name{font-size:15px;font-weight:600;}
+  .ct-member-name{font-size:15px;font-weight:800;color:#000000;}
   .ct-member-acc{font-size:11px;color:var(--ink-soft);margin-top:2px;}
   .ct-member-total{text-align:right;}
   .ct-member-total .amt{font-size:15px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums;}
@@ -320,6 +320,7 @@
   table.ct-table tbody tr:nth-child(even) td{ background:var(--bg); }
   table.ct-table td.num{ text-align:right; font-variant-numeric:tabular-nums; }
   table.ct-table td.sn{ color:var(--ink-soft); }
+  table.ct-table td.member-name{ font-weight:800; color:#000000; }
   table.ct-table td.loan{ color:var(--red); }
   table.ct-table td.total{ font-weight:700; color:var(--green); }
   table.ct-table tr{ content-visibility:auto; contain-intrinsic-size:0 36px; }
@@ -782,7 +783,7 @@
       // download before the blob URL is freed (fixes empty/failed downloads
       // on some mobile browsers).
       setTimeout(()=>URL.revokeObjectURL(url), 4000);
-      toast('डDownloaded successfully ✅');
+      toast('Click on Download.');
     }catch(err){
       // Fallback for browsers/in-app webviews that block the blob+download
       // trick entirely (e.g. some mobile in-app browsers): open the CSV as
@@ -809,7 +810,7 @@
       return `
       <tr>
         <td class="sn">${i+1}.</td>
-        <td>${escapeHtml(m.name)}</td>
+        <td class="member-name">${escapeHtml(m.name)}</td>
         <td>${accountHtml(m.account)}</td>
         <td class="num">${fmt(savToday)}</td>
         <td class="num loan">${fmt(loanToday)}</td>
@@ -850,18 +851,7 @@
   viewCardsBtn.addEventListener('click', ()=>setView('cards'));
   viewTableBtn.addEventListener('click', ()=>setView('table'));
 
-  // Rebuilding 1000+ DOM nodes on every keystroke/tap was the source of the
-  // lag and of the page visibly "jumping" (the browser resets scroll
-  // position when a large block of content above the fold is replaced).
-  // render() now: (1) only rebuilds the view that's actually visible,
-  // (2) only renders a page's worth of rows at a time, and
-  // (3) restores the scroll position it had right before the rebuild.
   function render(){
-    // While a modal is open the background is scroll-locked (see
-    // lockBodyScroll/unlockBodyScroll) via body { position:fixed }, so
-    // window.scrollY reads 0 during that time. Re-rendering the list behind
-    // the modal (e.g. after saving an amount) must NOT stomp on the
-    // remembered scroll position in that case.
     const scrollY = document.body.classList.contains('ct-modal-open')
       ? lockedScrollY
       : window.scrollY;
@@ -883,9 +873,6 @@
       renderCardsFiltered(filtered);
     }
 
-    // Restore exactly where the user was instead of letting the browser
-    // snap back to the top of the page. Skipped while modal-locked since
-    // the body itself is pinned via position:fixed at that point.
     if(!document.body.classList.contains('ct-modal-open')){
       window.scrollTo(0, scrollY);
     }
@@ -933,9 +920,6 @@
     }).join('') + (filtered.length > visibleCount ? '<button class="ct-loadmore" id="ct-loadmore-cards">थप देखाउनुहोस् ('+(filtered.length - visibleCount)+' बाँकी)</button>' : '');
   }
 
-  // Builds the "आजका प्रविष्टिहरू" list shown inside an expanded member
-  // card, so a wrongly-entered today's amount can be corrected or removed
-  // instead of only ever being added on top of.
   function entryListHtml(m){
     const today = todayStr();
     const savRows = (m.history||[])
@@ -982,13 +966,6 @@
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  // ---- background scroll lock (used while any modal is open) ----
-  // On mobile, tapping into the amount input opens the on-screen keyboard.
-  // The keyboard resizes/shifts the viewport, and without this lock the
-  // page behind the fixed modal visibly scrolls up and down as a result.
-  // Pinning <body> with position:fixed at its current scroll offset stops
-  // that background movement completely; unlocking restores the exact
-  // scroll position afterwards.
   let lockedScrollY = 0;
   let modalOpenCount = 0;
 
@@ -1012,14 +989,11 @@
     }
   }
 
-  // ---- modal helpers ----
   function openModal(html, onMount){
     lockBodyScroll();
     const backdrop = document.createElement('div');
     backdrop.className = 'ct-modal-backdrop';
     backdrop.innerHTML = `<div class="ct-modal">${html}</div>`;
-    // Block the backdrop itself from scrolling the page behind it on touch
-    // devices (belt-and-suspenders alongside the body lock above).
     backdrop.addEventListener('touchmove', e=>{
       if(e.target === backdrop) e.preventDefault();
     }, {passive:false});
@@ -1064,7 +1038,7 @@
             return;
           }
           members.push({id:uid(), name, account, savings, loan, history:[], loanHistory:[]});
-          speak(name); // announce the new member's name once they're added
+          speak(name);
         }
         persist();
         removeBackdrop();
@@ -1096,7 +1070,6 @@
     });
   }
 
-  // ---- event delegation ----
   document.getElementById('ct-add-member-btn').addEventListener('click', ()=>memberFormModal(null));
   document.getElementById('ct-download-btn').addEventListener('click', downloadTodayCSV);
   document.getElementById('ct-reset-btn').addEventListener('click', ()=>{
@@ -1113,13 +1086,11 @@
     }
   });
 
-  // Debounce search so filtering 1500 members doesn't run on every single
-  // keystroke on a mobile keyboard (this was a big source of the lag).
   let searchTimer = null;
   searchEl.addEventListener('input', ()=>{
     clearTimeout(searchTimer);
     searchTimer = setTimeout(()=>{
-      visibleCount = PAGE_SIZE; // fresh search starts from the top of the results
+      visibleCount = PAGE_SIZE;
       render();
     }, 180);
   });
@@ -1174,9 +1145,6 @@
       return;
     }
 
-    // Correct a wrongly-entered today's amount. Adjusts the member's
-    // running total (savings/loan) by the difference so both the
-    // per-member total and the आजको... summary cards stay in sync.
     const eedit = e.target.closest('[data-eedit]');
     if(eedit){
       const [mid, type, idxStr] = eedit.dataset.eedit.split('|');
@@ -1202,7 +1170,6 @@
       return;
     }
 
-    // Remove a wrongly-entered today's amount entirely.
     const edel = e.target.closest('[data-edel]');
     if(edel){
       const [mid, type, idxStr] = edel.dataset.edel.split('|');
