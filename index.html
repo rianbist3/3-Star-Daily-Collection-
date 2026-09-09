@@ -924,7 +924,7 @@
           </div>
           <div class="ct-member-actions">
             <button class="ct-btn edit" data-edit="${m.id}">Edit</button>
-            <button class="ct-btn del" data-del="${m.id}">मेट्नुहोस्</button>
+            <button class="ct-btn del" data-del="${m.id}">Delete</button>
           </div>
           ${entryListHtml(m)}
           ` : ''}
@@ -952,7 +952,7 @@
         <div class="ct-entry-amt ${cls}">${fmt(h.amount)}</div>
         <div class="ct-entry-actions">
           <button class="eedit" data-eedit="${m.id}|${type}|${h.idx}">सच्याउनुहोस्</button>
-          <button class="edel" data-edel="${m.id}|${type}|${h.idx}">मेट्नुहोस्</button>
+          <button class="edel" data-edel="${m.id}|${type}|${h.idx}">Delete</button>
         </div>
       </div>
     `;
@@ -1042,11 +1042,11 @@
       <h2>${isEdit ? 'सदस्य सम्पादन' : 'नयाँ सदस्य'}</h2>
       <div class="ct-field"><label>सदस्यको नाम</label><input id="f-name" value="${isEdit?escapeHtml(existing.name):''}" /></div>
       <div class="ct-field"><label>खाता नं.</label><input id="f-acc" value="${isEdit?escapeHtml(existing.account||''):''}" /></div>
-      <div class="ct-field"><label>सुरुको बचत रकम</label><input id="f-sav" type="number" inputmode="decimal" value="${isEdit?existing.savings:0}" /></div>
-      <div class="ct-field"><label>सुरुको ऋण</label><input id="f-loan" type="number" inputmode="decimal" value="${isEdit?existing.loan:0}" /></div>
+      <div class="ct-field"><label> बचत रकम</label><input id="f-sav" type="number" inputmode="decimal" value="${isEdit?existing.savings:0}" /></div>
+      <div class="ct-field"><label> ऋण रकम</label><input id="f-loan" type="number" inputmode="decimal" value="${isEdit?existing.loan:0}" /></div>
       <div class="ct-modal-actions">
-        <button class="cancel" id="f-cancel">रद्द</button>
-        <button class="save" id="f-save">${isEdit?'अपडेट गर्नुहोस्':'थप्नुहोस्'}</button>
+        <button class="cancel" id="f-cancel">Back</button>
+        <button class="save" id="f-save">${isEdit?'Update':'Update'}</button>
       </div>
     `, (backdrop, removeBackdrop)=>{
       backdrop.querySelector('#f-cancel').onclick = ()=>removeBackdrop();
