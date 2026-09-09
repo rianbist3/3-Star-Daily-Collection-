@@ -17,7 +17,7 @@
     --gold-soft:#F6EAD2;
     --red:#A6432D;
     --red-soft:#F5E4DE;
-    --line:#E1DACB;
+    --line:#A79F87;
     --card:#FFFFFF;
     --radius:14px;
   }
@@ -81,7 +81,7 @@
     flex:1 1 30%;
     min-width:104px;
     background:var(--card);
-    border:1px solid var(--line);
+    border:2px solid var(--line);
     border-radius:var(--radius);
     padding:10px 12px;
   }
@@ -93,7 +93,7 @@
     width:100%;
     padding:10px 12px;
     border-radius:10px;
-    border:1px solid var(--line);
+    border:2px solid var(--line);
     background:var(--card);
     font-size:16px;
     margin-bottom:12px;
@@ -124,12 +124,12 @@
     font-size:14px;
     background:var(--card);
     border-radius:var(--radius);
-    border:1px dashed var(--line);
+    border:2px dashed var(--line);
   }
 
   .ct-member{
     background:var(--card);
-    border:1px solid var(--line);
+    border:2px solid var(--line);
     border-radius:var(--radius);
     padding:12px 14px;
     margin-bottom:10px;
@@ -154,7 +154,7 @@
     gap:6px 12px;
     margin-top:10px;
     padding-top:10px;
-    border-top:1px solid var(--line);
+    border-top:2px solid var(--line);
     font-size:12px;
   }
   .ct-member-grid .g-lbl{color:var(--ink-soft);}
@@ -179,7 +179,34 @@
   .ct-btn.collect{background:var(--green);color:#fff;}
   .ct-btn.loan{background:var(--red-soft);color:var(--red);}
   .ct-btn.edit{background:var(--green-soft);color:var(--green);}
-  .ct-btn.del{background:transparent;color:var(--ink-soft);border:1px solid var(--line);flex:0 0 auto;padding:9px 12px;}
+  .ct-btn.del{background:transparent;color:var(--ink-soft);border:2px solid var(--line);flex:0 0 auto;padding:9px 12px;}
+
+  .ct-entry-section{margin-top:10px;padding-top:8px;border-top:2px dashed var(--line);}
+  .ct-entry-section .ct-entry-title{font-size:11px;color:var(--ink-soft);margin-bottom:4px;font-weight:600;}
+  .ct-entry-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:5px 0;
+    font-size:12px;
+    border-bottom:2px dashed var(--line);
+  }
+  .ct-entry-row:last-child{border-bottom:none;}
+  .ct-entry-amt{font-weight:700;font-variant-numeric:tabular-nums;}
+  .ct-entry-amt.savings{color:var(--green);}
+  .ct-entry-amt.loanamt{color:var(--red);}
+  .ct-entry-actions{display:flex;gap:6px;}
+  .ct-entry-actions button{
+    padding:4px 9px;
+    font-size:11px;
+    font-weight:600;
+    border-radius:6px;
+    border:none;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .ct-entry-actions .eedit{background:var(--green-soft);color:var(--green);}
+  .ct-entry-actions .edel{background:var(--red-soft);color:var(--red);}
 
   .ct-modal-backdrop{
     position:fixed;inset:0;background:rgba(20,25,20,0.45);
@@ -198,13 +225,13 @@
   .ct-field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:4px;}
   .ct-field input{
     width:100%;padding:10px 12px;border-radius:8px;
-    border:1px solid var(--line);font-size:16px;font-family:inherit;
+    border:2px solid var(--line);font-size:16px;font-family:inherit;
     color:var(--ink);
   }
   .ct-field input:focus{outline:2px solid var(--green);outline-offset:1px;}
   .ct-modal-actions{display:flex;gap:10px;margin-top:16px;}
   .ct-modal-actions button{flex:1;padding:11px;border-radius:8px;border:none;font-weight:600;font-family:inherit;font-size:14px;cursor:pointer;}
-  .ct-modal-actions .cancel{background:var(--bg);color:var(--ink-soft);border:1px solid var(--line);}
+  .ct-modal-actions .cancel{background:var(--bg);color:var(--ink-soft);border:2px solid var(--line);}
   .ct-modal-actions .save{background:var(--green);color:#fff;}
 
   .ct-view-toggle{
@@ -216,7 +243,7 @@
     flex:1;
     padding:9px;
     border-radius:8px;
-    border:1px solid var(--line);
+    border:2px solid var(--line);
     background:var(--card);
     color:var(--ink-soft);
     font-size:12px;
@@ -233,7 +260,7 @@
   .ct-table-wrap{
     overflow-x:auto;
     background:var(--card);
-    border:1px solid var(--line);
+    border:2px solid var(--line);
     border-radius:var(--radius);
     -webkit-overflow-scrolling:touch;
   }
@@ -245,7 +272,7 @@
   }
   table.ct-table th, table.ct-table td{
     padding:8px 10px;
-    border-bottom:1px solid var(--line);
+    border-bottom:2px solid var(--line);
     text-align:left;
     white-space:nowrap;
   }
@@ -255,6 +282,7 @@
     font-weight:700;
     position:sticky;
     top:0;
+    border-bottom:2px solid var(--green);
   }
   table.ct-table td.num{ text-align:right; font-variant-numeric:tabular-nums; }
   table.ct-table td.sn{ color:var(--ink-soft); }
@@ -275,7 +303,7 @@
   .ct-loadmore{
     width:100%;
     padding:12px;
-    border:1px dashed var(--line);
+    border:2px dashed var(--line);
     border-radius:10px;
     background:var(--card);
     color:var(--green);
@@ -853,10 +881,49 @@
             <button class="ct-btn edit" data-edit="${m.id}">सम्पादन</button>
             <button class="ct-btn del" data-del="${m.id}">मेट्नुहोस्</button>
           </div>
+          ${entryListHtml(m)}
           ` : ''}
         </div>
       `;
     }).join('') + (filtered.length > visibleCount ? '<button class="ct-loadmore" id="ct-loadmore-cards">थप देखाउनुहोस् ('+(filtered.length - visibleCount)+' बाँकी)</button>' : '');
+  }
+
+  // Builds the "आजका प्रविष्टिहरू" list shown inside an expanded member
+  // card, so a wrongly-entered today's amount can be corrected or removed
+  // instead of only ever being added on top of.
+  function entryListHtml(m){
+    const today = todayStr();
+    const savRows = (m.history||[])
+      .map((h, idx)=>({...h, idx}))
+      .filter(h=>h.date===today);
+    const loanRows = (m.loanHistory||[])
+      .map((h, idx)=>({...h, idx}))
+      .filter(h=>h.date===today);
+
+    if(savRows.length===0 && loanRows.length===0) return '';
+
+    const rowHtml = (h, type, cls) => `
+      <div class="ct-entry-row">
+        <div class="ct-entry-amt ${cls}">${fmt(h.amount)}</div>
+        <div class="ct-entry-actions">
+          <button class="eedit" data-eedit="${m.id}|${type}|${h.idx}">सच्याउनुहोस्</button>
+          <button class="edel" data-edel="${m.id}|${type}|${h.idx}">मेट्नुहोस्</button>
+        </div>
+      </div>
+    `;
+
+    return `
+      ${savRows.length ? `
+      <div class="ct-entry-section">
+        <div class="ct-entry-title">आजका बचत प्रविष्टिहरू</div>
+        ${savRows.map(h=>rowHtml(h,'savings','savings')).join('')}
+      </div>` : ''}
+      ${loanRows.length ? `
+      <div class="ct-entry-section">
+        <div class="ct-entry-title">आजका ऋण प्रविष्टिहरू</div>
+        ${loanRows.map(h=>rowHtml(h,'loan','loanamt')).join('')}
+      </div>` : ''}
+    `;
   }
 
   function accountHtml(acc){
@@ -917,13 +984,16 @@
     });
   }
 
-  function amountModal(title, onConfirm){
+  function amountModal(title, onConfirm, opts){
+    opts = opts || {};
+    const prefill = opts.prefill!=null ? opts.prefill : '';
+    const saveLabel = opts.saveLabel || 'पुष्टि गर्नुहोस्';
     const backdrop = openModal(`
       <h2>${title}</h2>
-      <div class="ct-field"><label>रकम</label><input id="a-amt" type="number" inputmode="decimal" autofocus /></div>
+      <div class="ct-field"><label>रकम</label><input id="a-amt" type="number" inputmode="decimal" value="${prefill}" autofocus /></div>
       <div class="ct-modal-actions">
         <button class="cancel" id="a-cancel">रद्द</button>
-        <button class="save" id="a-save">पुष्टि गर्नुहोस्</button>
+        <button class="save" id="a-save">${saveLabel}</button>
       </div>
     `, backdrop=>{
       backdrop.querySelector('#a-cancel').onclick = ()=>backdrop.remove();
@@ -1014,6 +1084,58 @@
       }
       return;
     }
+
+    // Correct a wrongly-entered today's amount. Adjusts the member's
+    // running total (savings/loan) by the difference so both the
+    // per-member total and the आजको... summary cards stay in sync.
+    const eedit = e.target.closest('[data-eedit]');
+    if(eedit){
+      const [mid, type, idxStr] = eedit.dataset.eedit.split('|');
+      const idx = Number(idxStr);
+      const m = members.find(x=>x.id===mid);
+      if(!m) return;
+      const arr = type==='savings' ? (m.history||[]) : (m.loanHistory||[]);
+      const entry = arr[idx];
+      if(!entry) return;
+      const oldAmt = entry.amount;
+      amountModal('रकम सच्याउनुहोस्', newAmt=>{
+        const diff = newAmt - oldAmt;
+        entry.amount = newAmt;
+        if(type==='savings'){
+          m.savings = Number(m.savings||0) + diff;
+        }else{
+          m.loan = Number(m.loan||0) + diff;
+        }
+        persist();
+        const kind = type==='savings' ? 'बचत' : 'ऋण';
+        announceCollection(m, kind, type==='savings' ? collectedToday(m) : loanGivenToday(m));
+      }, {prefill: oldAmt, saveLabel: 'सच्याउनुहोस्'});
+      return;
+    }
+
+    // Remove a wrongly-entered today's amount entirely.
+    const edel = e.target.closest('[data-edel]');
+    if(edel){
+      const [mid, type, idxStr] = edel.dataset.edel.split('|');
+      const idx = Number(idxStr);
+      const m = members.find(x=>x.id===mid);
+      if(!m) return;
+      const arr = type==='savings' ? (m.history||[]) : (m.loanHistory||[]);
+      const entry = arr[idx];
+      if(!entry) return;
+      if(confirm('यो प्रविष्टि मेट्ने पक्का हो? रु ' + Number(entry.amount).toLocaleString('en-IN') + ' घटाइनेछ।')){
+        if(type==='savings'){
+          m.savings = Number(m.savings||0) - entry.amount;
+        }else{
+          m.loan = Number(m.loan||0) - entry.amount;
+        }
+        arr.splice(idx, 1);
+        persist();
+        render();
+        toast('प्रविष्टि हटाइयो, रकम घटाइयो');
+      }
+      return;
+    }
   });
 
   tableContainerEl.addEventListener('click', e=>{
@@ -1026,4 +1148,3 @@
 </script>
 </body>
 </html>
-
