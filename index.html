@@ -919,11 +919,11 @@
             <div class="g-lbl">ऋण</div><div class="g-val loan">${fmt(m.loan)}</div>
           </div>
           <div class="ct-member-actions">
-            <button class="ct-btn collect" data-collect="${m.id}">बचत असुल</button>
-            <button class="ct-btn loan" data-loan="${m.id}">ऋण</button>
+            <button class="ct-btn collect" data-collect="${m.id}"> आजको बचत </button>
+            <button class="ct-btn loan" data-loan="${m.id}">आजको ऋण</button>
           </div>
           <div class="ct-member-actions">
-            <button class="ct-btn edit" data-edit="${m.id}">सम्पादन</button>
+            <button class="ct-btn edit" data-edit="${m.id}">Edit</button>
             <button class="ct-btn del" data-del="${m.id}">मेट्नुहोस्</button>
           </div>
           ${entryListHtml(m)}
@@ -960,12 +960,12 @@
     return `
       ${savRows.length ? `
       <div class="ct-entry-section">
-        <div class="ct-entry-title">आजका बचत प्रविष्टिहरू</div>
+        <div class="ct-entry-title">आजका बचत</div>
         ${savRows.map(h=>rowHtml(h,'savings','savings')).join('')}
       </div>` : ''}
       ${loanRows.length ? `
       <div class="ct-entry-section">
-        <div class="ct-entry-title">आजका ऋण प्रविष्टिहरू</div>
+        <div class="ct-entry-title">आजका ऋण</div>
         ${loanRows.map(h=>rowHtml(h,'loan','loanamt')).join('')}
       </div>` : ''}
     `;
@@ -1134,7 +1134,7 @@
     const collect = e.target.closest('[data-collect]');
     if(collect){
       const m = members.find(x=>x.id===collect.dataset.collect);
-      amountModal('आज कति बचत असुल गर्नुभयो?', amt=>{
+      amountModal('उहाँले आज राख्नुभएको बचत ?', amt=>{
         m.savings = Number(m.savings||0) + amt;
         m.history = m.history||[];
         m.history.push({date:todayStr(), amount:amt});
