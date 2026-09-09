@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>दैनिक असुली — सदस्य खाता</title>
+<title>दैनिक संकलना - 3 Star </title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -25,6 +25,23 @@
   }
 
   *{box-sizing:border-box;}
+
+  html.ct-modal-open, html.ct-modal-open body{
+    /* Prevents the background page from scrolling while a modal (e.g. the
+       "आज कति बचत असुल गर्नुभयो?" amount popup) is open. Without this,
+       tapping into the amount input opens the mobile keyboard, which
+       shifts/scrolls the page behind the fixed modal instead of leaving
+       it still. */
+    overflow:hidden;
+    height:100%;
+    overscroll-behavior:none;
+  }
+  body.ct-modal-open{
+    position:fixed;
+    left:0;
+    right:0;
+    width:100%;
+  }
 
   body{margin:0;}
 
@@ -224,6 +241,7 @@
   .ct-modal-backdrop{
     position:fixed;inset:0;background:rgba(20,25,20,0.45);
     display:flex;align-items:flex-end;justify-content:center;z-index:50;
+    overscroll-behavior:contain;
   }
   .ct-modal{
     background:var(--card);
@@ -232,6 +250,7 @@
     padding:20px 18px calc(26px + env(safe-area-inset-bottom, 0px));
     max-height:85vh;
     overflow-y:auto;
+    overscroll-behavior:contain;
   }
   .ct-modal h2{font-size:16px;margin:0 0 14px;color:var(--green);}
   .ct-field{margin-bottom:12px;}
@@ -333,7 +352,7 @@
 <body>
 <div id="ct-root">
   <div class="ct-header">
-    <h1>दैनिक असुली — सदस्य खाता</h1>
+    <h1>दैनिक संकलन — 3 Star </h1>
     <div class="ct-header-right">
       <button class="ct-refresh-corner" id="ct-voice-toggle" style="border-color:var(--green);background:var(--green-soft);color:var(--green);">🔊 आवाज</button>
       <button class="ct-refresh-corner" id="ct-reset-btn">रिफ्रेस</button>
@@ -350,20 +369,20 @@
       <div class="value" id="ct-today-loan">रु ०</div>
     </div>
     <div class="ct-summary-card gold">
-      <div class="label">आजको कुल संकलन रकम</div>
+      <div class="label">आजको Total संकलन रकम</div>
       <div class="value" id="ct-today-grand-total">रु ०</div>
     </div>
   </div>
 
   <input class="ct-search" id="ct-search" placeholder="नाम वा खाता नं. खोज्नुहोस्..." />
 
-  <button class="ct-add-btn" id="ct-download-btn" style="background:var(--gold);color:#fff;">⬇ आजको डाटा डाउनलोड गर्नुहोस् (CSV)</button>
+  <button class="ct-add-btn" id="ct-download-btn" style="background:var(--gold);color:#fff;">आजको Data⬇Save गर्नुहोस्</button>
 
   <button class="ct-add-btn" id="ct-add-member-btn">+ नयाँ सदस्य थप्नुहोस्</button>
 
   <div class="ct-view-toggle">
     <button id="ct-view-cards" class="active">कार्ड सूची</button>
-    <button id="ct-view-table">तालिका (फारम जस्तै)</button>
+    <button id="ct-view-table">Table</button>
   </div>
 
   <div id="ct-list"></div>
@@ -477,8 +496,8 @@
     ['सिताबी ठाकुर हजाम','GS-00242'],
     ['भुपाल कार्की','GS-00250'],
     ['यसोदा कटुवाल','GS-00249'],['यसोदा कटुवाल','PS-00086'],
-    ['डेविड कार्की','CS-00005'],
-    ['डेनिश कार्की','CS-00006'],
+    ['डेविड कार्की','GS-00005'],
+    ['डेनिश कार्की','GS-00006'],
     ['लक्ष्मी दर्जी परियार','GS-00270'],
     ['ओम शान्ति ज्वेलर्स','GS-00278'],
     ['उर्मिला श्रेष्ठ','GS-00279'],
@@ -487,9 +506,9 @@
     ['हरि बहादुर लामिछाने','GS-00284'],['हरि बहादुर लामिछाने','PS-00092'],
     ['आयुष लामिछाने','GS-00362'],
     ['राशिना कायस्थ','GS-00287'],
-    ['महिमा श्रेष्ठ','CS-000010'],
+    ['महिमा श्रेष्ठ','GS-000010'],
     ['जुना वि.क.','GS-00109'],
-    ['आराध्या जयसवाल','CS-00007'],
+    ['आराध्या जयसवाल','GS-00007'],
     ['रोशन जयसवाल','GS-00383'],
     ['विमला नेपाल','GS-00300'],
     ['सुहानि कुताल','GS-00104'],
@@ -558,7 +577,7 @@
     ['सुजता भुजेल','GS-00407'],
     ['अन्जु मगर','GS-00412'],
     ['अमर राणा मगर','PS-00129'],
-    ['प्रदीप','GS-00099']
+    ['प्रदीप','GS-00099'],['प्रदीप','PS-00093']
   ];
 
   // ---- voice confirmation (speaks the collection out loud after "पुष्टि गर्नुहोस्") ----
@@ -837,7 +856,14 @@
   // (2) only renders a page's worth of rows at a time, and
   // (3) restores the scroll position it had right before the rebuild.
   function render(){
-    const scrollY = window.scrollY;
+    // While a modal is open the background is scroll-locked (see
+    // lockBodyScroll/unlockBodyScroll) via body { position:fixed }, so
+    // window.scrollY reads 0 during that time. Re-rendering the list behind
+    // the modal (e.g. after saving an amount) must NOT stomp on the
+    // remembered scroll position in that case.
+    const scrollY = document.body.classList.contains('ct-modal-open')
+      ? lockedScrollY
+      : window.scrollY;
 
     const q = searchEl.value.trim().toLowerCase();
     const filtered = members.filter(m =>
@@ -857,8 +883,11 @@
     }
 
     // Restore exactly where the user was instead of letting the browser
-    // snap back to the top of the page.
-    window.scrollTo(0, scrollY);
+    // snap back to the top of the page. Skipped while modal-locked since
+    // the body itself is pinned via position:fixed at that point.
+    if(!document.body.classList.contains('ct-modal-open')){
+      window.scrollTo(0, scrollY);
+    }
   }
 
   function renderCardsFiltered(filtered){
@@ -952,20 +981,63 @@
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  // ---- background scroll lock (used while any modal is open) ----
+  // On mobile, tapping into the amount input opens the on-screen keyboard.
+  // The keyboard resizes/shifts the viewport, and without this lock the
+  // page behind the fixed modal visibly scrolls up and down as a result.
+  // Pinning <body> with position:fixed at its current scroll offset stops
+  // that background movement completely; unlocking restores the exact
+  // scroll position afterwards.
+  let lockedScrollY = 0;
+  let modalOpenCount = 0;
+
+  function lockBodyScroll(){
+    if(modalOpenCount === 0){
+      lockedScrollY = window.scrollY;
+      document.documentElement.classList.add('ct-modal-open');
+      document.body.classList.add('ct-modal-open');
+      document.body.style.top = -lockedScrollY + 'px';
+    }
+    modalOpenCount++;
+  }
+
+  function unlockBodyScroll(){
+    modalOpenCount = Math.max(0, modalOpenCount - 1);
+    if(modalOpenCount === 0){
+      document.documentElement.classList.remove('ct-modal-open');
+      document.body.classList.remove('ct-modal-open');
+      document.body.style.top = '';
+      window.scrollTo(0, lockedScrollY);
+    }
+  }
+
   // ---- modal helpers ----
   function openModal(html, onMount){
+    lockBodyScroll();
     const backdrop = document.createElement('div');
     backdrop.className = 'ct-modal-backdrop';
     backdrop.innerHTML = `<div class="ct-modal">${html}</div>`;
-    backdrop.addEventListener('click', e=>{ if(e.target===backdrop) backdrop.remove(); });
+    // Block the backdrop itself from scrolling the page behind it on touch
+    // devices (belt-and-suspenders alongside the body lock above).
+    backdrop.addEventListener('touchmove', e=>{
+      if(e.target === backdrop) e.preventDefault();
+    }, {passive:false});
+    let removed = false;
+    const removeBackdrop = ()=>{
+      if(removed) return;
+      removed = true;
+      backdrop.remove();
+      unlockBodyScroll();
+    };
+    backdrop.addEventListener('click', e=>{ if(e.target===backdrop) removeBackdrop(); });
     root.appendChild(backdrop);
-    onMount && onMount(backdrop);
+    onMount && onMount(backdrop, removeBackdrop);
     return backdrop;
   }
 
   function memberFormModal(existing){
     const isEdit = !!existing;
-    const backdrop = openModal(`
+    openModal(`
       <h2>${isEdit ? 'सदस्य सम्पादन' : 'नयाँ सदस्य'}</h2>
       <div class="ct-field"><label>सदस्यको नाम</label><input id="f-name" value="${isEdit?escapeHtml(existing.name):''}" /></div>
       <div class="ct-field"><label>खाता नं.</label><input id="f-acc" value="${isEdit?escapeHtml(existing.account||''):''}" /></div>
@@ -975,8 +1047,8 @@
         <button class="cancel" id="f-cancel">रद्द</button>
         <button class="save" id="f-save">${isEdit?'अपडेट गर्नुहोस्':'थप्नुहोस्'}</button>
       </div>
-    `, backdrop=>{
-      backdrop.querySelector('#f-cancel').onclick = ()=>backdrop.remove();
+    `, (backdrop, removeBackdrop)=>{
+      backdrop.querySelector('#f-cancel').onclick = ()=>removeBackdrop();
       backdrop.querySelector('#f-save').onclick = ()=>{
         const name = backdrop.querySelector('#f-name').value.trim();
         if(!name){ toast('नाम लेख्नुहोस्'); return; }
@@ -994,7 +1066,7 @@
           speak(name); // announce the new member's name once they're added
         }
         persist();
-        backdrop.remove();
+        removeBackdrop();
         render();
       };
     });
@@ -1004,20 +1076,20 @@
     opts = opts || {};
     const prefill = opts.prefill!=null ? opts.prefill : '';
     const saveLabel = opts.saveLabel || 'पुष्टि गर्नुहोस्';
-    const backdrop = openModal(`
+    openModal(`
       <h2>${title}</h2>
       <div class="ct-field"><label>रकम</label><input id="a-amt" type="number" inputmode="decimal" value="${prefill}" autofocus /></div>
       <div class="ct-modal-actions">
         <button class="cancel" id="a-cancel">रद्द</button>
         <button class="save" id="a-save">${saveLabel}</button>
       </div>
-    `, backdrop=>{
-      backdrop.querySelector('#a-cancel').onclick = ()=>backdrop.remove();
+    `, (backdrop, removeBackdrop)=>{
+      backdrop.querySelector('#a-cancel').onclick = ()=>removeBackdrop();
       backdrop.querySelector('#a-save').onclick = ()=>{
         const amt = Number(backdrop.querySelector('#a-amt').value);
         if(!amt || amt<=0){ toast('मान्य रकम लेख्नुहोस्'); return; }
         onConfirm(amt);
-        backdrop.remove();
+        removeBackdrop();
         render();
       };
     });
